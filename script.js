@@ -52,3 +52,4 @@ coverageObserver.observe(coverage);
 lazyLoaders.forEach(loader => {
     observer.observe(loader);
 });
+

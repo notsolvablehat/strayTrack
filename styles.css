@@ -404,10 +404,6 @@ body{
     transition: background-color 0.2s;
 }
 
-.newsletter-form button:hover {
-    background-color: #d81557;
-}
-
 .footer-bottom {
     margin-top: 3rem;
     padding-top: 2rem;
