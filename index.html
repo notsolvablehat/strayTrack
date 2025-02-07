@@ -318,15 +318,6 @@
                 
                     <div class="pet-info">
                         
-                        <div class="label">Breed:</div>
-                        <div class="value" id="breed"></div>
-                        
-                        <div class="label">Color:</div>
-                        <div class="value" id="color"></div>
-                        
-                        <div class="label">Age:</div>
-                        <div class="value" id="age"></div>
-                        
                         <div class="label">Location:</div>
                         <div class="value" id="location"></div>
                         
@@ -336,16 +327,14 @@
                         <div class="label">Vaccinated:</div>
                         <div class="value" id="vaccinated"><span class="status-badge"></span></div>
                         
-                        <div class="label">Health:</div>
-                        <div class="value" id="health"></div>
-                        
                         <div class="label">Owner:</div>
                         <div class="value" id="owner"></div>
                         
                         <div class="label">Owner Phone:</div>
                         <div class="value" id="ownerContact"></div>
                     </div>
-                
+                    <button style="padding: 5px; width: 100%; display: none;" id="getMoreInfo">Get More Info</button>
+                    
                     <!-- <button class="contact-button" onclick="contactOwner()">
                         Contact Owner 🎉
                     </button> -->
@@ -430,18 +419,14 @@
                     // Show loading message
                     document.querySelector('.pet-name').textContent = "Fetching...";
                     document.querySelector('.pet-id').textContent = `ID: ${dogId}`;
-                    document.querySelector('#breed').textContent = "";
-                    document.querySelector('#color').textContent = "";
-                    document.querySelector('#age').textContent = "";
                     document.querySelector('#location').textContent = "";
                     document.querySelector('#last-seen').textContent = "";
                     document.querySelector('#vaccinated .status-badge').textContent = "";
-                    document.querySelector('#health').textContent = "";
                     document.querySelector('#owner').textContent = "";
                     document.querySelector('#ownerContact').textContent = "";
                     document.querySelector('.pet-info').style.display = 'none'
                     try {
-                        const dogsRef = collection(db, "dogs");
+                        const dogsRef = collection(db, "dogDetails");
                         const q = query(dogsRef, where("DOGID", "==", dogId));
                         const querySnapshot = await getDocs(q);
 
@@ -454,19 +439,19 @@
                             const dog = doc.data();
 
                             document.querySelector('.pet-info').style.display = 'grid'
+                            document.getElementById("getMoreInfo").style.display = 'block'
+                            document.getElementById("getMoreInfo").onclick = () => {
+                                window.open("./more-info.html","_blank");
+                                sessionStorage.setItem("dogId",dogId);
+                            }
                             const image_url = dog.DogPicture;
                             
                             document.querySelector('.pet-avatar').style.display = 'none';
-                            document.querySelector('.div').innerHTML = `<img src=${image_url} style="animation: wobble 4s ease-in-out infinite; width: 120px;
-      height: 120px;       border-radius: 60% 40% 50% 50% / 60% 40% 60% 40%;" >` || '🐕';
+                            document.querySelector('.div').innerHTML = `<img src=${image_url} style="animation: wobble 4s ease-in-out infinite; width: 120px; height: 120px;       border-radius: 60% 40% 50% 50% / 60% 40% 60% 40%;" >` || '🐕';
                             document.querySelector('.pet-name').textContent = dog.Name || "N/A";
                             document.querySelector('.pet-id').textContent = `ID: ${dog.DOGID || "N/A"}`;
-                            document.querySelector('#breed').textContent = dog.Breed || "N/A";
-                            document.querySelector('#color').textContent = dog.Color || "N/A";
-                            document.querySelector('#age').textContent = dog.Age || "N/A";
                             document.querySelector('#location').textContent = dog.Location || "N/A";
                             document.querySelector('#last-seen').textContent = dog.LastSeen || "N/A";
-                            document.querySelector('#health').textContent = dog.Diseases || "None";
                             document.querySelector('#owner').textContent = dog.Owner || "N/A";
                             document.querySelector('#ownerContact').textContent = dog.OwnerContact || "N/A";
 
@@ -493,6 +478,18 @@
 
 
             document.addEventListener("DOMContentLoaded", () => {
+                const queryParams = new URLSearchParams(window.location.search);
+
+                const dogId = queryParams.get('dogId');
+
+                if (dogId) {
+                    document.getElementById("manual_id").value = dogId;
+                    setTimeout(() => {
+                        document.getElementById("get_manual_data").click();
+                    }, 1000);
+                } else {
+                    
+                }
                 let scanner = new Instascan.Scanner({ video: document.getElementById('qr-preview') });
 
                 scanner.addListener('scan', (dogId) => {

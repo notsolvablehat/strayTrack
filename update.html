@@ -323,7 +323,7 @@
                     }
 
                     // Update document
-                    const docRef = doc(db, "dogs", currentDocumentId);
+                    const docRef = doc(db, "dogDetails", currentDocumentId);
                     await updateDoc(docRef, {
                         Name: document.getElementById('name').value,
                         Breed: document.getElementById('breed').value,
