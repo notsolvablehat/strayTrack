@@ -193,6 +193,36 @@
                     <label for="pic">Dog Picture</label>
                     <input type="file" id="pic" accept="image/*" />
                 </div>
+                <div class="form-group">
+                    <label for="spayedNeutered">Spayed/Neutered</label>
+                    <select id="spayedNeutered">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="abcParticipant">ABC Program Participant</label>
+                    <select id="abcParticipant">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="abcDate">ABC Program Date</label>
+                    <input type="date" id="abcDate">
+                </div>
+                <div class="form-group">
+                    <label for="abcClinic">ABC Clinic</label>
+                    <input type="text" id="abcClinic">
+                </div>
+                <div class="form-group">
+                    <label for="healthConditions">Health Conditions</label>
+                    <input type="text" id="healthConditions">
+                </div>
+                <div class="form-group">
+                    <label for="medications">Medications (comma-separated)</label>
+                    <input type="text" id="medications">
+                </div>
             </div>
             <img id="preview" src="" alt="Image Preview" style="display: none;" />
             <div class="button-group">
@@ -204,172 +234,182 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-        import {
-            getFirestore,
-            collection,
-            query,
-            where,
-            getDocs,
-            doc,
-            updateDoc
-        } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
-        import {
-            getStorage,
-            ref,
-            uploadBytes,
-            getDownloadURL
-        } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-storage.js";
+            import {
+                getFirestore,
+                collection,
+                query,
+                where,
+                getDocs,
+                doc,
+                updateDoc
+            } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+            import {
+                getStorage,
+                ref,
+                uploadBytes,
+                getDownloadURL
+            } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-storage.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAl7LSK_oJd1d8XgYeUsXXSQ2TrhyaN_AQ",
-            authDomain: "straydog-management.firebaseapp.com",
-            projectId: "straydog-management",
-            storageBucket: "straydog-management.firebasestorage.app",
-            messagingSenderId: "35656558047",
-            appId: "1:35656558047:web:dbfb4f5e7ba6cc0bbd106a",
-            measurementId: "G-RMCQT24DML"
-        };
+            const firebaseConfig = {
+                apiKey: "AIzaSyAl7LSK_oJd1d8XgYeUsXXSQ2TrhyaN_AQ",
+                authDomain: "straydog-management.firebaseapp.com",
+                projectId: "straydog-management",
+                storageBucket: "straydog-management.firebasestorage.app",
+                messagingSenderId: "35656558047",
+                appId: "1:35656558047:web:dbfb4f5e7ba6cc0bbd106a",
+                measurementId: "G-RMCQT24DML"
+            };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchButton = document.getElementById('searchButton');
-            const searchDogId = document.getElementById('searchDogId');
-            const updateForm = document.getElementById('updateForm');
-            const cancelButton = document.getElementById('cancelButton');
-            let currentDocumentId = null;
+            document.addEventListener('DOMContentLoaded', () => {
+                const searchButton = document.getElementById('searchButton');
+                const searchDogId = document.getElementById('searchDogId');
+                const updateForm = document.getElementById('updateForm');
+                const cancelButton = document.getElementById('cancelButton');
+                let currentDocumentId = null;
 
-            searchButton.addEventListener('click', async () => {
-                const dogId = searchDogId.value.trim();
-                if (!dogId) {
-                    alert('Please enter a Dog ID');
-                    return;
-                }
-
-                try {
-                    const q = query(collection(db, "dogs"), where("DOGID", "==", dogId));
-                    const querySnapshot = await getDocs(q);
-
-                    if (querySnapshot.empty) {
-                        alert('No dog found with this ID');
+                searchButton.addEventListener('click', async () => {
+                    const dogId = searchDogId.value.trim();
+                    if (!dogId) {
+                        alert('Please enter a Dog ID');
                         return;
                     }
 
-                    // Get the first document (assuming DOGID is unique)
-                    const docSnap = querySnapshot.docs[0];
-                    const data = docSnap.data();
-                    currentDocumentId = docSnap.id;
+                    try {
+                        const q = query(collection(db, "dogDetails"), where("DOGID", "==", dogId));
+                        const querySnapshot = await getDocs(q);
 
-                    // Populate form fields
-                    document.getElementById('dogId').value = data.DOGID;
-                    document.getElementById('name').value = data.Name;
-                    document.getElementById('breed').value = data.Breed;
-                    document.getElementById('color').value = data.Color;
-                    document.getElementById('age').value = data.Age;
-                    document.getElementById('location').value = data.Location;
-                    document.getElementById('lastSeen').value = data.LastSeen;
-                    document.getElementById('vaccinated').value = data.Vaccinated;
-                    document.getElementById('owner').value = data.Owner;
-                    document.getElementById('ownerContact').value = data.OwnerContact;
-                    document.getElementById('diseases').value = data.Diseases || 'None';
-
-                    // Show preview of existing image if available
-                    const previewImage = document.getElementById('preview');
-                    if (data.DogPicture) {
-                        previewImage.src = data.DogPicture;
-                        previewImage.style.display = 'block';
-                    }
-
-                    // Show the form
-                    updateForm.style.display = 'block';
-
-                } catch (error) {
-                    console.error("Error searching for dog:", error);
-                    alert('Error searching for dog details');
-                }
-            });
-
-            updateForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                if (!currentDocumentId) {
-                    alert('Please search for a dog first');
-                    return;
-                }
-
-                const picFile = document.getElementById('pic').files[0];
-                let downloadURL = document.getElementById('preview').src;
-
-                try {
-                    // If a new image is uploaded
-                    if (picFile) {
-                        const formData = new FormData();
-                        formData.append("file", picFile);
-                        formData.append("upload_preset", "StrayTrack");
-
-                        const response = await fetch("https://api.cloudinary.com/v1_1/doexh0tnv/image/upload", {
-                            method: "POST",
-                            body: formData
-                        });
-
-                        const data = await response.json();
-
-                        if (!data.secure_url) {
-                            throw new Error("Cloudinary upload failed.");
+                        if (querySnapshot.empty) {
+                            alert('No dog found with this ID');
+                            return;
                         }
 
-                        downloadURL = data.secure_url;
+                        const docSnap = querySnapshot.docs[0];
+                        const data = docSnap.data();
+                        currentDocumentId = docSnap.id;
+
+                        // Populate all form fields
+                        document.getElementById('dogId').value = data.DOGID;
+                        document.getElementById('name').value = data.Name;
+                        document.getElementById('breed').value = data.Breed;
+                        document.getElementById('color').value = data.Color;
+                        document.getElementById('age').value = data.Age;
+                        document.getElementById('location').value = data.Location;
+                        document.getElementById('lastSeen').value = data.LastSeen;
+                        document.getElementById('vaccinated').value = data.Vaccinated;
+                        document.getElementById('owner').value = data.Owner;
+                        document.getElementById('ownerContact').value = data.OwnerContact;
+                        document.getElementById('diseases').value = data.Diseases || 'None';
+                        document.getElementById('spayedNeutered').value = data.SpayedNeutered || 'No';
+                        document.getElementById('abcParticipant').value = data.ABCParticipant || 'No';
+                        document.getElementById('abcDate').value = data.ABCDate || '';
+                        document.getElementById('abcClinic').value = data.ABCClinic || '';
+                        document.getElementById('healthConditions').value = data.HealthConditions || '';
+                        document.getElementById('medications').value = data.Medications || '';
+
+                        // Show preview of existing image
+                        const previewImage = document.getElementById('preview');
+                        if (data.DogPicture) {
+                            previewImage.src = data.DogPicture;
+                            previewImage.style.display = 'block';
+                        }
+
+                        updateForm.style.display = 'block';
+
+                    } catch (error) {
+                        console.error("Error searching for dog:", error);
+                        alert('Error searching for dog details');
+                    }
+                });
+
+                updateForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    if (!currentDocumentId) {
+                        alert('Please search for a dog first');
+                        return;
                     }
 
-                    // Update document
-                    const docRef = doc(db, "dogDetails", currentDocumentId);
-                    await updateDoc(docRef, {
-                        Name: document.getElementById('name').value,
-                        Breed: document.getElementById('breed').value,
-                        Color: document.getElementById('color').value,
-                        Age: document.getElementById('age').value,
-                        Location: document.getElementById('location').value,
-                        LastSeen: document.getElementById('lastSeen').value,
-                        Vaccinated: document.getElementById('vaccinated').value,
-                        Owner: document.getElementById('owner').value,
-                        OwnerContact: document.getElementById('ownerContact').value,
-                        Diseases: document.getElementById('diseases').value || "None",
-                        DogPicture: downloadURL,
-                        timestamp: new Date()
-                    });
+                    const picFile = document.getElementById('pic').files[0];
+                    let downloadURL = document.getElementById('preview').src;
 
-                    alert("Dog details successfully updated!");
+                    try {
+                        // Handle image upload if new image is selected
+                        if (picFile) {
+                            const formData = new FormData();
+                            formData.append("file", picFile);
+                            formData.append("upload_preset", "StrayTrack");
 
-                } catch (error) {
-                    console.error("Error updating dog details:", error);
-                    alert("Failed to update dog details.");
-                }
+                            const response = await fetch("https://api.cloudinary.com/v1_1/doexh0tnv/image/upload", {
+                                method: "POST",
+                                body: formData
+                            });
+
+                            const data = await response.json();
+
+                            if (!data.secure_url) {
+                                throw new Error("Cloudinary upload failed.");
+                            }
+
+                            downloadURL = data.secure_url;
+                        }
+
+                        // Update document with all fields
+                        const docRef = doc(db, "dogDetails", currentDocumentId);
+                        await updateDoc(docRef, {
+                            Name: document.getElementById('name').value,
+                            Breed: document.getElementById('breed').value,
+                            Color: document.getElementById('color').value,
+                            Age: document.getElementById('age').value,
+                            Location: document.getElementById('location').value,
+                            LastSeen: document.getElementById('lastSeen').value,
+                            Vaccinated: document.getElementById('vaccinated').value,
+                            Owner: document.getElementById('owner').value,
+                            OwnerContact: document.getElementById('ownerContact').value,
+                            Diseases: document.getElementById('diseases').value || "None",
+                            DogPicture: downloadURL,
+                            SpayedNeutered: document.getElementById('spayedNeutered').value,
+                            ABCParticipant: document.getElementById('abcParticipant').value,
+                            ABCDate: document.getElementById('abcDate').value,
+                            ABCClinic: document.getElementById('abcClinic').value,
+                            HealthConditions: document.getElementById('healthConditions').value,
+                            Medications: document.getElementById('medications').value,
+                            timestamp: new Date()
+                        });
+
+                        alert("Dog details successfully updated!");
+
+                    } catch (error) {
+                        console.error("Error updating dog details:", error);
+                        alert("Failed to update dog details.");
+                    }
+                });
+
+                // Cancel button functionality
+                cancelButton.addEventListener('click', () => {
+                    updateForm.style.display = 'none';
+                    searchDogId.value = '';
+                    updateForm.reset();
+                    document.getElementById('preview').style.display = 'none';
+                    currentDocumentId = null;
+                });
+
+                // Image preview for new upload
+                document.getElementById('pic').addEventListener('change', function (event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const previewImage = document.getElementById('preview');
+                            previewImage.style.display = 'block';
+                            previewImage.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
             });
-
-            // Cancel button functionality
-            cancelButton.addEventListener('click', () => {
-                updateForm.style.display = 'none';
-                searchDogId.value = '';
-                updateForm.reset();
-                document.getElementById('preview').style.display = 'none';
-                currentDocumentId = null;
-            });
-
-            // Image preview for new upload
-            document.getElementById('pic').addEventListener('change', function (event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const previewImage = document.getElementById('preview');
-                        previewImage.style.display = 'block';
-                        previewImage.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        });
     </script>
 </body>
 
