@@ -541,162 +541,172 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-            import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 
-            const firebaseConfig = {
-                apiKey: "AIzaSyAl7LSK_oJd1d8XgYeUsXXSQ2TrhyaN_AQ",
-                authDomain: "straydog-management.firebaseapp.com",
-                projectId: "straydog-management",
-                storageBucket: "straydog-management.firebasestorage.app",
-                messagingSenderId: "35656558047",
-                appId: "1:35656558047:web:dbfb4f5e7ba6cc0bbd106a",
-                measurementId: "G-RMCQT24DML"
-            };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAl7LSK_oJd1d8XgYeUsXXSQ2TrhyaN_AQ",
+            authDomain: "straydog-management.firebaseapp.com",
+            projectId: "straydog-management",
+            storageBucket: "straydog-management.firebasestorage.app",
+            messagingSenderId: "35656558047",
+            appId: "1:35656558047:web:dbfb4f5e7ba6cc0bbd106a",
+            measurementId: "G-RMCQT24DML"
+        };
 
-            const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-            function closePetCard() {
-                document.querySelector('.pet-card').style.display = 'none';
+        let currentCameraIndex = 0;
+        let availableCameras = [];
+
+        function closePetCard() {
+            document.querySelector('.pet-card').style.display = 'none';
+        }
+
+        async function fetchDogDetails(dogId) {
+            const petCard = document.querySelector('.pet-card');
+            petCard.style.display = 'block';
+
+            // Show loading message
+            document.querySelector('.pet-name').textContent = "Fetching...";
+            document.querySelector('.pet-id').textContent = `ID: ${dogId}`;
+            document.querySelector('#location').textContent = "";
+            document.querySelector('#last-seen').textContent = "";
+            document.querySelector('#vaccinated .status-badge').textContent = "";
+            document.querySelector('#owner').textContent = "";
+            document.querySelector('#ownerContact').textContent = "";
+            document.querySelector('.pet-info').style.display = 'none'
+            try {
+                const dogsRef = collection(db, "dogDetails");
+                const q = query(dogsRef, where("DOGID", "==", dogId));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    document.querySelector('.pet-name').textContent = "No dog found";
+                    return;
+                }
+                
+                querySnapshot.forEach((doc) => {
+                    const dog = doc.data();
+
+                    document.querySelector('.pet-info').style.display = 'grid'
+                    document.getElementById("getMoreInfo").style.display = 'block'
+                    document.getElementById("getMoreInfo").onclick = () => {
+                        setTimeout(() => {
+                            sessionStorage.setItem("dogId",dogId);
+                            window.open("./more-info.html","_blank");
+                        }, 500);
+                    }
+                    const image_url = dog.DogPicture;
+                    
+                    document.querySelector('.pet-avatar').style.display = 'none';
+                    document.querySelector('.div').innerHTML = `<img src=${image_url} style="animation: wobble 4s ease-in-out infinite; width: 120px; height: 120px;       border-radius: 60% 40% 50% 50% / 60% 40% 60% 40%;" >` || '🐕';
+                    document.querySelector('.pet-name').textContent = dog.Name || "N/A";
+                    document.querySelector('.pet-id').textContent = `ID: ${dog.DOGID || "N/A"}`;
+                    document.querySelector('#location').textContent = dog.Location || "N/A";
+                    document.querySelector('#last-seen').textContent = dog.LastSeen || "N/A";
+                    document.querySelector('#owner').textContent = dog.Owner || "N/A";
+                    document.querySelector('#ownerContact').textContent = dog.OwnerContact || "N/A";
+
+                    // Update vaccinated status
+                    const vaccinatedStatus = (dog.Vaccinated || "No").trim().toLowerCase() === 'yes' ? 'Yes ✓' : 'No ✘';
+                    const badge = document.querySelector('#vaccinated .status-badge');
+
+                    if (vaccinatedStatus === "No ✘") {
+                        badge.style.background = '#ef233c';
+                        badge.style.color = '#ffffff';
+                    } else {
+                        badge.style.background = '#55efc4';
+                        badge.style.color = '#00b894';
+                    }
+                    badge.textContent = vaccinatedStatus;
+                });
+
+            } catch (error) {
+                console.error("Error fetching dog details:", error);
+            document.querySelector('.pet-info').style.display = 'none'
+                document.querySelector('.pet-name').textContent = "Error fetching data";
             }
+        }
 
-            async function fetchDogDetails(dogId) {
-                    const petCard = document.querySelector('.pet-card');
-                    petCard.style.display = 'block';
+        document.addEventListener("DOMContentLoaded", () => {
+            const queryParams = new URLSearchParams(window.location.search);
+            const dogId = queryParams.get('dogId');
 
-                    // Show loading message
-                    document.querySelector('.pet-name').textContent = "Fetching...";
-                    document.querySelector('.pet-id').textContent = `ID: ${dogId}`;
-                    document.querySelector('#location').textContent = "";
-                    document.querySelector('#last-seen').textContent = "";
-                    document.querySelector('#vaccinated .status-badge').textContent = "";
-                    document.querySelector('#owner').textContent = "";
-                    document.querySelector('#ownerContact').textContent = "";
-                    document.querySelector('.pet-info').style.display = 'none'
-                    try {
-                        const dogsRef = collection(db, "dogDetails");
-                        const q = query(dogsRef, where("DOGID", "==", dogId));
-                        const querySnapshot = await getDocs(q);
+            if (dogId) {
+                document.getElementById("manual_id").value = dogId;
+                setTimeout(() => {
+                    document.getElementById("get_manual_data").click();
+                }, 1000);
+            } else {
+                
+            }
+            let scanner = new Instascan.Scanner({ video: document.getElementById('qr-preview') });
 
-                        if (querySnapshot.empty) {
-                            document.querySelector('.pet-name').textContent = "No dog found";
-                            return;
-                        }
-                        
-                        querySnapshot.forEach((doc) => {
-                            const dog = doc.data();
+            scanner.addListener('scan', (dogId) => {
+                console.log(dogId)
+                dogId = dogId.split('=')[1]
+                scanner.stop().then(() => {
+                }).catch((err) => {
+                    console.error("Error stopping scanner: ", err);
+                });
 
-                            document.querySelector('.pet-info').style.display = 'grid'
-                            document.getElementById("getMoreInfo").style.display = 'block'
-                            document.getElementById("getMoreInfo").onclick = () => {
-                                setTimeout(() => {
-                                    sessionStorage.setItem("dogId",dogId);
-                                    window.open("./more-info.html","_blank");
-                                }, 500);
-                            }
-                            const image_url = dog.DogPicture;
-                            
-                            document.querySelector('.pet-avatar').style.display = 'none';
-                            document.querySelector('.div').innerHTML = `<img src=${image_url} style="animation: wobble 4s ease-in-out infinite; width: 120px; height: 120px;       border-radius: 60% 40% 50% 50% / 60% 40% 60% 40%;" >` || '🐕';
-                            document.querySelector('.pet-name').textContent = dog.Name || "N/A";
-                            document.querySelector('.pet-id').textContent = `ID: ${dog.DOGID || "N/A"}`;
-                            document.querySelector('#location').textContent = dog.Location || "N/A";
-                            document.querySelector('#last-seen').textContent = dog.LastSeen || "N/A";
-                            document.querySelector('#owner').textContent = dog.Owner || "N/A";
-                            document.querySelector('#ownerContact').textContent = dog.OwnerContact || "N/A";
-
-                            // Update vaccinated status
-                            const vaccinatedStatus = (dog.Vaccinated || "No").trim().toLowerCase() === 'yes' ? 'Yes ✓' : 'No ✘';
-                            const badge = document.querySelector('#vaccinated .status-badge');
-
-                            if (vaccinatedStatus === "No ✘") {
-                                badge.style.background = '#ef233c';
-                                badge.style.color = '#ffffff';
-                            } else {
-                                badge.style.background = '#55efc4';
-                                badge.style.color = '#00b894';
-                            }
-                            badge.textContent = vaccinatedStatus;
+                // Fetch dog details from Firebase
+                fetchDogDetails(dogId);
+            });
+            document.getElementById("get_manual_data").onclick = (e) => {
+                const input = document.getElementById('manual_id');
+                const vall = input.value.trim();
+                
+                if (!vall) {
+                    input.style.borderColor = '#e33665';
+                    return;
+                }
+                
+                input.style.borderColor = '#000';
+                fetchDogDetails(vall);
+            }
+            document.getElementById('startCamera').addEventListener('click', () => {
+                Instascan.Camera.getCameras().then((cameras) => {
+                    availableCameras = cameras;
+                    if (availableCameras.length > 0) {
+                        scanner.start(availableCameras[currentCameraIndex]).then(() => {}).catch((err) => {
+                            console.error("Error starting scanner: ", err);
                         });
-
-                    } catch (error) {
-                        console.error("Error fetching dog details:", error);
-                    document.querySelector('.pet-info').style.display = 'none'
-                        document.querySelector('.pet-name').textContent = "Error fetching data";
+                    } else {
+                        alert('No cameras found.');
                     }
-                }
-
-
-            document.addEventListener("DOMContentLoaded", () => {
-                const queryParams = new URLSearchParams(window.location.search);
-
-                const dogId = queryParams.get('dogId');
-
-                if (dogId) {
-                    document.getElementById("manual_id").value = dogId;
-                    setTimeout(() => {
-                        document.getElementById("get_manual_data").click();
-                    }, 1000);
-                } else {
-                    
-                }
-                let scanner = new Instascan.Scanner({ video: document.getElementById('qr-preview') });
-
-                scanner.addListener('scan', (dogId) => {
-                    console.log(dogId)
-                    dogId = dogId.split('=')[1]
-                    scanner.stop().then(() => {
-                    }).catch((err) => {
-                        console.error("Error stopping scanner: ", err);
-                    });
-
-                    // Fetch dog details from Firebase
-                    fetchDogDetails(dogId);
-                });
-                document.getElementById("get_manual_data").onclick = (e) => {
-                    const input = document.getElementById('manual_id');
-                    const vall = input.value.trim();
-                    
-                    if (!vall) {
-                        input.style.borderColor = '#e33665';
-                        return;
-                    }
-                    
-                    input.style.borderColor = '#000';
-                    fetchDogDetails(vall);
-                }
-                document.getElementById('startCamera').addEventListener('click', () => {
-                    Instascan.Camera.getCameras().then((availableCameras) => {
-                        if (availableCameras.length > 0) {
-                            scanner.start(availableCameras[0]).then(() => {
-                            }).catch((err) => {
-                                console.error("Error starting scanner: ", err);
-                            });
-                        } else {
-                            alert('No cameras found.');
-                        }
-                    }).catch((err) => {
-                        console.error("Camera error: ", err);
-                    });
-                });
-
-                document.getElementById("stopCamera").addEventListener('click', () => {
-                    scanner.stop().then(() => {
-                    }).catch((err) => {
-                        console.error("Error stopping camera: ", err);
-                    });
+                }).catch((err) => {
+                    console.error("Camera error: ", err);
                 });
             });
 
-            function contactOwner() {
-                const ownerContact = document.getElementById('ownerContact').textContent;
-                if (ownerContact) {
-                    window.location.href = `tel:${ownerContact}`;
-                } else {
-                    alert('Owner contact not available!');
-                }
-            }
+            document.getElementById("stopCamera").addEventListener('click', () => {
+                scanner.stop().then(() => {}).catch((err) => {
+                    console.error("Error stopping camera: ", err);
+                });
+            });
 
+            document.getElementById("flipCamera").addEventListener('click', () => {
+                if (availableCameras.length > 1) {
+                    currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
+                    scanner.start(availableCameras[currentCameraIndex]).then(() => {}).catch((err) => {
+                        console.error("Error starting scanner: ", err);
+                    });
+                } else {
+                    alert('No additional cameras found.');
+                }
+            });
+        });
+
+        function contactOwner() {
+            const ownerContact = document.getElementById('ownerContact').textContent;
+            if (ownerContact) {
+                window.location.href = `tel:${ownerContact}`;
+            } else {
+                alert('Owner contact not available!');
+            }
+        }
     </script>
     <script>
         document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
