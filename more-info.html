@@ -351,9 +351,7 @@
         });
         document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("dogId").value = sessionStorage.getItem("dogId");
-                setTimeout(() => {
-                    document.querySelector(".search-button").click();
-                }, 1000);
+                document.querySelector(".search-button").click();
             });
     </script>
 </body>

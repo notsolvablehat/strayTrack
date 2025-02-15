@@ -18,7 +18,7 @@
             margin-top: 5rem;
             padding: 2rem;
             background: #F3F4F6;
-            min-height: calc(100vh - 5rem - 20rem);
+            min-height: 92vh;
             border: 1px solid;
             border-radius: 10px;
         }
@@ -118,10 +118,10 @@
 
         .scanner-status {
             padding: 1rem;
-            background: white;
             border-radius: 0.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 1rem;
         }
     .pet-card {
       background: white;
@@ -228,32 +228,180 @@
     .contact-button:hover {
       transform: scale(1.02);
     }
+
+    /* Navbar Styles */
+    .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        height: 80px;
+    }
+
+    .nav-container {
+        margin: 0 auto;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 60rem;
+    }
+
+    .logo {
+        margin-top: 10px;
+    }
+
+    .logo img {
+        height: 35px;
+        width: auto;
+    }
+
+    .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 2rem;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: #2c2624;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        color: #c7a78b;
+    }
+
+    .get-involved-btn {
+        background: #2c2624;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+    .get-involved-btn:hover {
+        background: #c7a78b;
+    }
+
+    .scan-btn {
+        background: transparent;
+        color: #2c2624;
+        border: 1px solid #2c2624;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-right: -7rem;
+        transition: all 0.3s ease;
+    }
+
+    .scan-btn:hover {
+        background: rgba(44, 38, 36, 0.05);
+    }
+
+    .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        gap: 6px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .mobile-menu-btn span {
+        display: block;
+        width: 25px;
+        height: 3px;
+        background: #2c2624;
+        transition: 0.3s;
+    }
+    #scan-link {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .nav-links {
+            display: none;
+        }
+
+        .mobile-menu-btn {
+            display: flex;
+        }
+
+        .get-involved-btn, .scan-btn {
+            display: none;
+        }
+        #scan-link {
+            display: block;
+        }
+    }
+
+    .nav-links.active {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(44, 38, 36, 0.1);
+        z-index: 1000;
+    }
+
+    .nav-links.active li {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(44, 38, 36, 0.1);
+    }
+
+    .nav-links.active li:last-child {
+        border-bottom: none;
+    }
     </style>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <nav class="navbar">
-        <a href="./index.html" class="logo" style="user-select: none;"><img src="logo.png" alt=""
-                style="height: 2rem; user-select: none;"></a>
-    
-        <div class="nav-links">
-            <a href="./about.html">About Us</a>
-            <a href="./tech.html">Technology</a>
-            <a href="res.html">Resources</a>
-            <a href="us.html">Contact Us</a>
-            <button id="get-inv">Get Involved</button>
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="home.html" class="logo">
+                <img src="logo.png" alt="StrayTrack Logo">
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="tech.html">Technology</a></li>
+                    <li><a href="res.html">Resources</a></li>
+                    <li><a href="us.html">Contact Us</a></li>
+                    <li><a href="index.html" id="scan-link">Scan</a></li>
+                </ul>
+            </nav>
+            <button class="get-involved-btn">Get Involved</button>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
-    </nav>
+    </header>
     <script src="https://unpkg.com/quagga/dist/quagga.min.js"></script>
     
     <!-- Import Instascan -->
     <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
     
     <!-- Scanner Section -->
-    <div style="display: flex; justify-content: center;" class="lazy-loader">
+    <div style="display: flex; justify-content: center;">
         <main class="scanner-section" style="max-width: 550px;">
-            <div class="scanner-container lazy-loader">
+            <div class="scanner-container">
                 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
                     <img src="logo.png" height="35px" alt="">
                     <h1 class="scanner-title" style="font-size: 2.2rem; margin-bottom: 5px;">Scanner</h1>
@@ -263,11 +411,11 @@
                     Simply point your camera at a StrayTrack QR code tag to get started.
                 </p>
     
-                <div class="scanner-frame lazy-loader">
+                <div class="scanner-frame">
                     <video id="qr-preview" style="width: 100%; height: auto;"></video>
                 </div>
     
-                <div class="scanner-controls lazy-loader" >
+                <div class="scanner-controls" >
                     <button class="scanner-btn primary-btn" id="startCamera" style="padding: 15px; background: #2C2624;">
                         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -297,9 +445,9 @@
                     </button>
                 </div>
     
-                <div class="scanner-status lazy-loader">
-                    <input type="text" name="" id="manual_id" placeholder="Enter DogID to get data" style="padding: 10px; border-radius: 5px; border: 1px solid;">
-                    <input type="submit" value="Get" style="padding: 10px; border-radius: 5px; cursor: pointer;" id="get_manual_data">
+                <div class="scanner-status">
+                    <input type="text" name="" id="manual_id" placeholder="Enter DogID to get data" style="padding: 15px;width: 100%;border-radius: 5px; border: 1px solid;" required>
+                    <input type="submit" value="Get" style="padding: 10px; border-radius: 5px; cursor: pointer; width: 18%; border: 1px solid black;" id="get_manual_data">
                 </div>
 
                 <div class="pet-card" style="display: none;">
@@ -333,7 +481,7 @@
                         <div class="label">Owner Phone:</div>
                         <div class="value" id="ownerContact"></div>
                     </div>
-                    <button style="padding: 5px; width: 100%; display: none;" id="getMoreInfo">Get More Info</button>
+                    <button style="padding: 15px; width: 100%; display: none; background: #2C2624; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: background 0.3s ease;" id="getMoreInfo" onmouseover="this.style.background='#443c39'" onmouseout="this.style.background='#2C2624'">Get More Info</button>
                     
                     <!-- <button class="contact-button" onclick="contactOwner()">
                         Contact Owner 🎉
@@ -372,7 +520,7 @@
                 <p>Subscribe to our newsletter for the latest updates on stray dog welfare and technology advancements.</p>
                 <form class="newsletter-form">
                     <input type="email" placeholder="Enter your email" required>
-                    <button type="submit" style="border: 1px solid black; color: black;">Subscribe</button>
+                    <button type="submit" style="border: 1px solid black; color: black;" onclick="event.preventDefault()">Subscribe</button>
                 </form>
             </div>
         </div>
@@ -441,8 +589,10 @@
                             document.querySelector('.pet-info').style.display = 'grid'
                             document.getElementById("getMoreInfo").style.display = 'block'
                             document.getElementById("getMoreInfo").onclick = () => {
-                                window.open("./more-info.html","_blank");
-                                sessionStorage.setItem("dogId",dogId);
+                                setTimeout(() => {
+                                    sessionStorage.setItem("dogId",dogId);
+                                    window.open("./more-info.html","_blank");
+                                }, 500);
                             }
                             const image_url = dog.DogPicture;
                             
@@ -493,7 +643,8 @@
                 let scanner = new Instascan.Scanner({ video: document.getElementById('qr-preview') });
 
                 scanner.addListener('scan', (dogId) => {
-                    dogId = dogId.split(':')[1]
+                    console.log(dogId)
+                    dogId = dogId.split('=')[1]
                     scanner.stop().then(() => {
                     }).catch((err) => {
                         console.error("Error stopping scanner: ", err);
@@ -502,10 +653,17 @@
                     // Fetch dog details from Firebase
                     fetchDogDetails(dogId);
                 });
-                document.getElementById("get_manual_data").onclick = () => {
-                    const vall = document.getElementById('manual_id').value
-                    console.log(vall)
-                    fetchDogDetails(vall)
+                document.getElementById("get_manual_data").onclick = (e) => {
+                    const input = document.getElementById('manual_id');
+                    const vall = input.value.trim();
+                    
+                    if (!vall) {
+                        input.style.borderColor = '#e33665';
+                        return;
+                    }
+                    
+                    input.style.borderColor = '#000';
+                    fetchDogDetails(vall);
                 }
                 document.getElementById('startCamera').addEventListener('click', () => {
                     Instascan.Camera.getCameras().then((availableCameras) => {
@@ -538,24 +696,12 @@
                     alert('Owner contact not available!');
                 }
             }
-    const lazyLoaders = document.querySelectorAll('.lazy-loader');
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target);
-            }
+    </script>
+    <script>
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
         });
-    }, {
-        threshold: 0.1
-    });
-
-
-    lazyLoaders.forEach(loader => {
-        observer.observe(loader);
-    });
-
     </script>
 </body>
 

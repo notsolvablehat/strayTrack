@@ -215,7 +215,7 @@
 
 <body>
     <section class="hero lazy-loader">
-        <a href="index.html" style="position: absolute; top: 5rem; left: 5rem;"><svg id="back"
+        <a href="home.html" style="position: absolute; top: 5rem; left: 5rem;"><svg id="back"
                 xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" style="fill: rgb(255, 255, 255);">
                 <path style="stroke: white;" d="M12.707 17.293 8.414 13H18v-2H8.414l4.293-4.293-1.414-1.414L4.586 12l6.707 6.707z"></path>
             </svg></a>
@@ -234,22 +234,22 @@
         <div class="contact-form">
             <div>
                 <h2>Send us a <span class="accent">Message</span></h2>
-                <form>
+                <form onsubmit="event.preventDefault(); sendEmail();">
                     <div class="form-group">
                         <label>Name</label>
-                        <input type="text" required>
+                        <input type="text" id="name" required>
                     </div>
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" required>
+                        <input type="email" id="email" required>
                     </div>
                     <div class="form-group">
                         <label>Subject</label>
-                        <input type="text" required>
+                        <input type="text" id="subject" required>
                     </div>
                     <div class="form-group">
                         <label>Message</label>
-                        <textarea required></textarea>
+                        <textarea id="message" required></textarea>
                     </div>
                     <button type="submit">Send Message</button>
                 </form>
@@ -259,13 +259,24 @@
                 <div style="font-size: 1.2rem;">
                     <p style="margin-bottom: 2rem;">Our team is available to assist you with implementation, support,
                         and general inquiries about our technology solutions.</p>
-                    <p style="margin-bottom: 1rem;"><strong>Email:</strong> support@straytrack.com</p>
-                    <p style="margin-bottom: 1rem;"><strong>Phone:</strong> +1 (555) 123
+                    <p style="margin-bottom: 1rem;"><strong>Email:</strong> notsolvablehat@gmail.com</p>
+                    <p style="margin-bottom: 1rem;"><strong>Phone:</strong> +91 8884552955
                 </p>
             </div>
             </div>
         </div>
     </section>
-    <script src="script.js"></script>
+    <script>
+        function sendEmail() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+
+            const mailtoLink = `mailto:notsolvablehat@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\n\n' + message)}`;
+
+            window.location.href = mailtoLink;
+        }
+    </script>
 </body>
 </html>
